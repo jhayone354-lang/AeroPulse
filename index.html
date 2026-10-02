@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroPulse - Live Transatlantic Flight Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        skyline: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                            950: '#082f49'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Leaflet CSS & JS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #map { height: 100%; min-height: 420px; border-radius: 1rem; z-index: 1; }
+        .pulse-dot {
+            box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7);
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(14, 165, 233, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+        .plane-icon-rotated {
+            transition: all 0.5s ease;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <header class="border-b border-slate-800 dark:border-slate-800 bg-slate-900/80 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showHomeView()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+                    <i class="fa-solid font-bold fa-plane-departure text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-sky-400 via-indigo-300 to-white bg-clip-text text-transparent">AeroPulse</span>
+                    <span class="hidden sm:inline-block text-xs text-sky-400/80 font-mono ml-2 border border-sky-500/30 px-1.5 py-0.5 rounded">LIVE TRACKER</span>
+                </div>
+            </div>
+
+            <!-- Global Quick Search in Header -->
+            <div class="flex-1 max-w-md mx-4 hidden md:block">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="navSearchInput" placeholder="Search flight or code (e.g. CDGMAN-7X42Q, DEMO 742)..." 
+                           class="w-full bg-slate-800/80 border border-slate-700/80 rounded-full pl-10 pr-24 py-1.5 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-slate-200 placeholder-slate-400 transition-all"
+                           onkeypress="handleKeyPress(event, 'navSearchInput')">
+                    <button onclick="performSearch('navSearchInput')" class="absolute right-1 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white text-xs px-3 py-1 rounded-full transition-colors font-medium">
+                        Track
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors" title="Toggle Theme">
+                    <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- VIEW 1: HOME / RADAR OVERVIEW -->
+        <div id="homeView" class="space-y-8 transition-all duration-300">
+            <!-- Hero Search Header -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950/60 border border-slate-800/80 p-8 sm:p-12 shadow-2xl">
+                <div class="absolute -right-12 -top-12 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-flex items-center space-x-2 bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                        <span>Global Flight Tracking System</span>
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Real-Time Global <br><span class="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">Flight Radar & Tracking</span>
+                    </h1>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        Track active flights worldwide, view precise geodesic routes, time zone metrics, and real-time position updates.
+                    </p>
+
+                    <!-- Main Search Box -->
+                    <div class="pt-4">
+                        <div class="flex flex-col sm:flex-row gap-2 bg-slate-800/90 p-2 rounded-2xl border border-slate-700 shadow-xl">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-plane-arrival absolute left-4 top-1/2 -translate-y-1/2 text-sky-400"></i>
+                                <input type="text" id="heroSearchInput" placeholder="Enter Tracking Code or Flight #..." 
+                                       class="w-full bg-transparent pl-11 pr-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none text-sm font-medium"
+                                       value=""
+                                       onkeypress="handleKeyPress(event, 'heroSearchInput')">
+                            </div>
+                            <button onclick="performSearch('heroSearchInput')" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-lg shadow-sky-500/25">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>Track Flight</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Flights Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-100 flex items-center space-x-2">
+                        <i class="fa-solid fa-satellite-dish text-sky-400"></i>
+                        <span>Live Global Radar Flights</span>
+                    </h2>
+                    <span class="text-xs text-slate-400">Live Telemetry Feed</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Standard Active Flight 1 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400">
+                                    <i class="fa-solid fa-plane"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-white">BAW 178</h3>
+                                    <p class="text-xs text-slate-400 font-mono">Status: In Transit</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20">En Route</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 items-center gap-2 mb-4 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                            <div>
+                                <span class="text-xs text-slate-400 block font-medium">New York</span>
+                                <span class="text-lg font-extrabold text-white">JFK</span>
+                            </div>
+                            <div class="text-center flex flex-col items-center">
+                                <i class="fa-solid fa-plane text-sky-400 text-xs"></i>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400 block font-medium">London</span>
+                                <span class="text-lg font-extrabold text-white">LHR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Standard Active Flight 2 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
+                                    <i class="fa-solid fa-plane"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-300">AFR 334</h3>
+                                    <p class="text-xs text-slate-500 font-mono">Status: Scheduled</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 font-mono">Scheduled</span>
+                        </div>
+                        <div class="grid grid-cols-3 items-center gap-2 mb-4 bg-slate-950/40 p-3 rounded-xl">
+                            <div>
+                                <span class="text-xs text-slate-500">Paris</span>
+                                <span class="text-base font-bold text-slate-300 block">CDG</span>
+                            </div>
+                            <div class="text-center">
+                                <i class="fa-solid fa-plane-clamp text-slate-600"></i>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-500">Boston</span>
+                                <span class="text-base font-bold text-slate-300 block">BOS</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Standard Active Flight 3 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
+                                    <i class="fa-solid fa-plane"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-300">DLH 422</h3>
+                                    <p class="text-xs text-slate-500 font-mono">Status: Scheduled</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 font-mono">Scheduled</span>
+                        </div>
+                        <div class="grid grid-cols-3 items-center gap-2 mb-4 bg-slate-950/40 p-3 rounded-xl">
+                            <div>
+                                <span class="text-xs text-slate-500">Frankfurt</span>
+                                <span class="text-base font-bold text-slate-300 block">FRA</span>
+                            </div>
+                            <div class="text-center">
+                                <i class="fa-solid fa-plane-clamp text-slate-600"></i>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-500">Boston</span>
+                                <span class="text-base font-bold text-slate-300 block">BOS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: FLIGHT TRACKER DETAILS (CDGMAN-7X42Q) -->
+        <div id="trackerDetailsView" class="hidden space-y-6 transition-all duration-300">
+            <!-- Top Status Bar & Back Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-xl">
+                <div class="flex items-center space-x-4">
+                    <button onclick="showHomeView()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors" title="Back to Radar">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <div class="flex items-center space-x-3">
+                            <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">FLIGHT 742</h1>
+                            <span class="inline-flex items-center space-x-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                                <span>IN TRANSIT</span>
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">Booking Ref: <span class="text-sky-400 font-bold" id="detailRefCode">CDGMAN-7X42Q</span> &bull; Boeing 787-9 Dreamliner</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 text-xs sm:text-sm bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                    <div class="flex items-center space-x-2 text-slate-300">
+                        <i class="fa-solid fa-user-check text-sky-400"></i>
+                        <span class="text-slate-400">Passenger:</span>
+                        <span class="font-semibold text-white">Henry Simon</span>
+                    </div>
+                    <div class="h-4 w-px bg-slate-800"></div>
+                    <div class="text-slate-400 font-mono">
+                        Date: <span class="text-slate-200">Oct 24, 2026</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Banner Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <!-- Departure Airport: Paris CDG -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-xs font-mono text-sky-400 uppercase tracking-wider">Departure (CEST / UTC+2)</span>
+                            <h2 class="text-2xl font-black text-white">Paris Charles de Gaulle</h2>
+                            <p class="text-xs text-slate-400">CDG &bull; Terminal 2E, Gate K34</p>
+                        </div>
+                        <span class="text-3xl font-black text-slate-700">CDG</span>
+                    </div>
+                    <div class="flex items-baseline space-x-3 mt-4">
+                        <span class="text-3xl font-extrabold text-white font-mono">14:20</span>
+                        <span class="text-xs text-slate-400 font-mono">CEST &bull; Oct 24, 2026</span>
+                    </div>
+                    <p class="text-xs text-emerald-400 mt-2 flex items-center space-x-1">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Departed On Time</span>
+                    </p>
+                </div>
+
+                <!-- Flight Duration / Progress Middle Summary -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl space-y-2">
+                    <span class="text-xs text-slate-400 font-mono">Flight Duration</span>
+                    <span class="text-lg font-bold text-sky-400 font-mono">7h 45m</span>
+                    <div class="w-full flex items-center justify-center space-x-2 text-slate-500">
+                        <div class="h-0.5 flex-1 bg-slate-800"></div>
+                        <i class="fa-solid fa-plane text-sky-400 transform rotate-90 text-sm"></i>
+                        <div class="h-0.5 flex-1 bg-slate-800"></div>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">5,530 km / 3,435 mi</span>
+                    <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">6h Time Zone Shift</span>
+                </div>
+
+                <!-- Destination Airport: Boston BOS -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">Destination (EDT / UTC-4)</span>
+                            <h2 class="text-2xl font-black text-white">Boston Logan International</h2>
+                            <p class="text-xs text-slate-400">BOS &bull; Massachusetts, USA &bull; Terminal E, Gate E8</p>
+                        </div>
+                        <span class="text-3xl font-black text-slate-700">BOS</span>
+                    </div>
+                    <div class="flex items-baseline space-x-3 mt-4">
+                        <span class="text-3xl font-extrabold text-white font-mono">16:05</span>
+                        <span class="text-xs text-slate-400 font-mono">EDT &bull; Oct 24, 2026</span>
+                    </div>
+                    <p class="text-xs text-sky-400 mt-2 flex items-center space-x-1">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>Estimated Local Arrival Time</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Interactive Map Block -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-earth-americas text-sky-400"></i>
+                            <span class="font-bold text-slate-200 text-sm">North Atlantic Flight Arc Map</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-slate-400">
+                            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span><span>Route</span></span>
+                            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span><span>Live Position</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Map Container -->
+                    <div class="relative flex-1 min-h-[420px] rounded-xl overflow-hidden border border-slate-800">
+                        <div id="map"></div>
+                        
+                        <!-- Floating Live Overlay on Map -->
+                        <div class="absolute top-4 left-4 z-10 glass-panel border border-slate-700/80 rounded-xl p-3 shadow-2xl text-xs space-y-1.5 font-mono">
+                            <div class="flex items-center space-x-2 text-sky-400 font-bold">
+                                <i class="fa-solid fa-satellite animate-pulse"></i>
+                                <span>ADS-B LIVE TELEMETRY</span>
+                            </div>
+                            <div class="text-slate-300">Lat: <span id="telemetryLat" class="font-bold text-white">51.2401</span></div>
+                            <div class="text-slate-300">Lon: <span id="telemetryLon" class="font-bold text-white">-28.4520</span></div>
+                            <div class="text-slate-300">Heading: <span class="font-bold text-white">264° WSW</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Telemetry Gauge & Digital Boarding Pass -->
+                <div class="space-y-6">
+                    <!-- Live Flight Metrics Box -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                        <h3 class="font-bold text-white text-sm flex items-center justify-between">
+                            <span>Live Flight Metrics</span>
+                            <span class="text-xs font-mono font-normal text-emerald-400 flex items-center space-x-1">
+                                <i class="fa-solid fa-wifi text-[10px]"></i>
+                                <span>Connected</span>
+                            </span>
+                        </h3>
+
+                        <!-- Progress Bar -->
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-400 font-mono mb-1.5">
+                                <span>Flight Progress</span>
+                                <span id="progressPercent" class="text-sky-400 font-bold">62%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/50">
+                                <div id="progressBar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 62%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Grid Telemetry Stats -->
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[11px] text-slate-400 block font-medium">Cruising Altitude</span>
+                                <span id="telemetryAlt" class="text-lg font-bold text-white font-mono">36,000 ft</span>
+                                <span class="text-[10px] text-slate-500 block">FL360 &bull; Stable</span>
+                            </div>
+                            <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[11px] text-slate-400 block font-medium">Ground Speed</span>
+                                <span id="telemetrySpeed" class="text-lg font-bold text-white font-mono">542 mph</span>
+                                <span class="text-[10px] text-slate-500 block">872 km/h &bull; Mach 0.82</span>
+                            </div>
+                            <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[11px] text-slate-400 block font-medium">Distance Remaining</span>
+                                <span id="telemetryDist" class="text-lg font-bold text-white font-mono">1,305 mi</span>
+                                <span class="text-[10px] text-slate-500 block">~2,100 km left</span>
+                            </div>
+                            <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[11px] text-slate-400 block font-medium">Time Remaining</span>
+                                <span id="telemetryTimeRem" class="text-lg font-bold text-sky-400 font-mono">2h 55m</span>
+                                <span class="text-[10px] text-slate-500 block">ETA: 16:05 EDT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Digital Boarding Pass Card -->
+                    <div class="bg-gradient-to-br from-sky-950/40 via-slate-900 to-indigo-950/40 border border-sky-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-ticket text-sky-400"></i>
+                                <span class="font-bold text-xs uppercase tracking-wider text-slate-300">Boarding Pass</span>
+                            </div>
+                            <span class="text-xs font-mono text-sky-400 font-bold">ECONOMY PREMIUM</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Passenger Name</span>
+                                <span class="text-base font-extrabold text-white font-mono">HENRY SIMON</span>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-2 text-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Flight</span>
+                                    <span class="text-xs font-bold text-white font-mono">DEMO742</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Seat</span>
+                                    <span class="text-xs font-bold text-sky-400 font-mono">14A</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Gate</span>
+                                    <span class="text-xs font-bold text-white font-mono">K34</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Zone</span>
+                                    <span class="text-xs font-bold text-white font-mono">2</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex flex-col items-center justify-center">
+                                <!-- Mock Barcode using SVG lines -->
+                                <div class="bg-white p-2 rounded w-full flex justify-center items-center h-12 overflow-hidden">
+                                    <div class="flex space-x-1 h-8 items-center w-full justify-between px-2">
+                                        <div class="w-1 h-full bg-black"></div>
+                                        <div class="w-2 h-full bg-black"></div>
+                                        <div class="w-0.5 h-full bg-black"></div>
+                                        <div class="w-1.5 h-full bg-black"></div>
+                                        <div class="w-1 h-full bg-black"></div>
+                                        <div class="w-3 h-full bg-black"></div>
+                                        <div class="w-0.5 h-full bg-black"></div>
+                                        <div class="w-2 h-full bg-black"></div>
+                                        <div class="w-1 h-full bg-black"></div>
+                                        <div class="w-2.5 h-full bg-black"></div>
+                                        <div class="w-1 h-full bg-black"></div>
+                                        <div class="w-0.5 h-full bg-black"></div>
+                                        <div class="w-2 h-full bg-black"></div>
+                                        <div class="w-1 h-full bg-black"></div>
+                                        <div class="w-3 h-full bg-black"></div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-400 mt-1">CDGMAN-7X42Q &bull; 88392019482</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: NOT FOUND STATE -->
+        <div id="notFoundView" class="hidden text-center py-16 space-y-4 bg-slate-900/60 border border-slate-800 rounded-3xl p-8">
+            <div class="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-plane-circle-xmark"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Flight Reference Not Found</h2>
+            <p class="text-slate-400 max-w-md mx-auto text-sm">
+                No active tracking data found for the code entered. Please verify your flight number or reference code and try again.
+            </p>
+            <button onclick="showHomeView()" class="inline-flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all border border-slate-700">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Try Another Search</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/40 mt-auto py-6 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                &copy; 2026 AeroPulse Global Operations.
+            </div>
+            <div class="flex space-x-4">
+                <span>CDG (Paris) UTC+2</span>
+                <span>&bull;</span>
+                <span>BOS (Massachusetts, USA) UTC-4</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global Map Variables
+        let map;
+        let flightMarker;
+        let polyline;
+        let updateInterval;
+
+        // Coordinates for Paris CDG and Boston Logan BOS
+        const CDG_COORDS = [49.0097, 2.5479]; // Paris CDG
+        const BOS_COORDS = [42.3656, -71.0096]; // Boston Logan BOS (Massachusetts, USA)
+
+        // Progress simulation state
+        let flightProgress = 0.62; 
+
+        window.onload = function() {
+            console.log("AeroPulse Flight Tracker Ready.");
+        };
+
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-moon text-slate-300';
+            }
+        }
+
+        // View Switches
+        function showHomeView() {
+            document.getElementById('homeView').classList.remove('hidden');
+            document.getElementById('trackerDetailsView').classList.add('hidden');
+            document.getElementById('notFoundView').classList.add('hidden');
+            if (updateInterval) clearInterval(updateInterval);
+        }
+
+        function showDetailsView() {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('trackerDetailsView').classList.remove('hidden');
+            document.getElementById('notFoundView').classList.add('hidden');
+
+            setTimeout(() => {
+                initOrUpdateMap();
+            }, 100);
+        }
+
+        function showNotFoundView() {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('trackerDetailsView').classList.add('hidden');
+            document.getElementById('notFoundView').classList.remove('hidden');
+            if (updateInterval) clearInterval(updateInterval);
+        }
+
+        // Search Handling logic
+        function handleKeyPress(e, inputId) {
+            if (e.key === 'Enter') {
+                performSearch(inputId);
+            }
+        }
+
+        function performSearch(inputId) {
+            const inputElem = document.getElementById(inputId);
+            if (!inputElem) return;
+            
+            const rawVal = inputElem.value.trim().toUpperCase();
+            const cleanVal = rawVal.replace(/[^A-Z0-9]/g, '');
+
+            // Validates tracking input code manually entered by user
+            if (cleanVal === 'CDGMAN7X42Q' || cleanVal === 'DEMO742' || rawVal === 'CDGMAN-7X42Q' || rawVal === 'DEMO 742') {
+                loadMatchedFlight('CDGMAN-7X42Q');
+            } else {
+                showNotFoundView();
+            }
+        }
+
+        function loadMatchedFlight(code) {
+            document.getElementById('detailRefCode').innerText = code;
+            showDetailsView();
+            startLiveTelemetrySimulation();
+        }
+
+        function generateArcPoints(start, end, numPoints = 100) {
+            const points = [];
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                let lat = start[0] + (end[0] - start[0]) * t;
+                let lon = start[1] + (end[end.length - 1] - start[1]) * t;
+                const arcOffset = Math.sin(t * Math.PI) * 8.5;
+                lat += arcOffset;
+                points.push([lat, lon]);
+            }
+            return points;
+        }
+
+        function initOrUpdateMap() {
+            const routePoints = generateArcPoints(CDG_COORDS, BOS_COORDS);
+            const currentIndex = Math.floor(flightProgress * (routePoints.length - 1));
+            const currentPos = routePoints[currentIndex];
+
+            if (!map) {
+                map = L.map('map', {
+                    zoomControl: true,
+                    attributionControl: false
+                }).setView([48.0, -32.0], 4);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 18,
+                    subdomains: 'abcd'
+                }).addTo(map);
+
+                polyline = L.polyline(routePoints, {
+                    color: '#0ea5e9',
+                    weight: 3,
+                    dashArray: '6, 8',
+                    opacity: 0.85
+                }).addTo(map);
+
+                const cdgIcon = L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div class="bg-sky-500 text-white font-mono font-bold text-[10px] px-2 py-1 rounded shadow-lg flex items-center space-x-1 border border-white">
+                            <span>CDG</span>
+                           </div>`,
+                    iconSize: [40, 24],
+                    iconAnchor: [20, 12]
+                });
+
+                const bosIcon = L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div class="bg-indigo-600 text-white font-mono font-bold text-[10px] px-2 py-1 rounded shadow-lg flex items-center space-x-1 border border-white">
+                            <span>BOS</span>
+                           </div>`,
+                    iconSize: [40, 24],
+                    iconAnchor: [20, 12]
+                });
+
+                L.marker(CDG_COORDS, { icon: cdgIcon }).addTo(map);
+                L.marker(BOS_COORDS, { icon: bosIcon }).addTo(map);
+
+                const planeSvgIcon = L.divIcon({
+                    className: 'plane-icon-container',
+                    html: `<div class="text-emerald-400 text-2xl filter drop-shadow-lg transform -rotate-45">
+                            <i class="fa-solid fa-plane"></i>
+                           </div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                flightMarker = L.marker(currentPos, { icon: planeSvgIcon }).addTo(map);
+                map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+            } else {
+                map.invalidateSize();
+                flightMarker.setLatLng(currentPos);
+            }
+
+            updateTelemetryUI(currentPos[0], currentPos[1]);
+        }
+
+        function startLiveTelemetrySimulation() {
+            if (updateInterval) clearInterval(updateInterval);
+            const routePoints = generateArcPoints(CDG_COORDS, BOS_COORDS);
+
+            updateInterval = setInterval(() => {
+                flightProgress += 0.0005;
+                if (flightProgress > 0.95) flightProgress = 0.20;
+
+                const index = Math.floor(flightProgress * (routePoints.length - 1));
+                const currentPos = routePoints[index];
+
+                if (flightMarker) {
+                    flightMarker.setLatLng(currentPos);
+                }
+
+                updateTelemetryUI(currentPos[0], currentPos[1]);
+            }, 3000);
+        }
+
+        function updateTelemetryUI(lat, lon) {
+            document.getElementById('telemetryLat').innerText = lat.toFixed(4);
+            document.getElementById('telemetryLon').innerText = lon.toFixed(4);
+
+            const percent = Math.round(flightProgress * 100);
+            document.getElementById('progressPercent').innerText = percent + '%';
+            document.getElementById('progressBar').style.width = percent + '%';
+
+            const totalMiles = 3435;
+            const remainingMiles = Math.round(totalMiles * (1 - flightProgress));
+            document.getElementById('telemetryDist').innerText = remainingMiles.toLocaleString() + ' mi';
+
+            const totalMinutes = 465;
+            const remainingMinutes = Math.round(totalMinutes * (1 - flightProgress));
+            const rh = Math.floor(remainingMinutes / 60);
+            const rm = remainingMinutes % 60;
+            document.getElementById('telemetryTimeRem').innerText = `${rh}h ${rm}m`;
+
+            const randomAlt = 36000 + Math.floor(Math.random() * 120 - 60);
+            const randomSpeed = 540 + Math.floor(Math.random() * 8 - 4);
+            document.getElementById('telemetryAlt').innerText = randomAlt.toLocaleString() + ' ft';
+            document.getElementById('telemetrySpeed').innerText = randomSpeed + ' mph';
+        }
+    </script>
+</body>
+</html>
