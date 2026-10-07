@@ -142,14 +142,14 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Standard Active Flight 1 -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden cursor-pointer hover:border-sky-500/50 transition-colors" onclick="loadMatchedFlight('CDGMAN-7X42Q')">
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400">
                                     <i class="fa-solid fa-plane"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-white">BAW 178</h3>
+                                    <h3 class="font-bold text-white">KM 742</h3>
                                     <p class="text-xs text-slate-400 font-mono">Status: In Transit</p>
                                 </div>
                             </div>
@@ -165,8 +165,8 @@
                                 <i class="fa-solid fa-plane text-sky-400 text-xs"></i>
                             </div>
                             <div class="text-right">
-                                <span class="text-xs text-slate-400 block font-medium">London</span>
-                                <span class="text-lg font-extrabold text-white">LHR</span>
+                                <span class="text-xs text-slate-400 block font-medium">Malta</span>
+                                <span class="text-lg font-extrabold text-white">MLA</span>
                             </div>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
                                 <span class="text-base font-bold text-slate-300 block">CDG</span>
                             </div>
                             <div class="text-center">
-                                <i class="fa-solid fa-plane-clamp text-slate-600"></i>
+                                <i class="fa-solid fa-plane text-slate-600"></i>
                             </div>
                             <div class="text-right">
                                 <span class="text-xs text-slate-500">Boston</span>
@@ -220,7 +220,7 @@
                                 <span class="text-base font-bold text-slate-300 block">FRA</span>
                             </div>
                             <div class="text-center">
-                                <i class="fa-solid fa-plane-clamp text-slate-600"></i>
+                                <i class="fa-solid fa-plane text-slate-600"></i>
                             </div>
                             <div class="text-right">
                                 <span class="text-xs text-slate-500">Boston</span>
@@ -232,7 +232,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: FLIGHT TRACKER DETAILS (CDGMAN-7X42Q) -->
+        <!-- VIEW 2: FLIGHT TRACKER DETAILS -->
         <div id="trackerDetailsView" class="hidden space-y-6 transition-all duration-300">
             <!-- Top Status Bar & Back Button -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-xl">
@@ -248,7 +248,7 @@
                                 <span>IN TRANSIT</span>
                             </span>
                         </div>
-                        <p class="text-xs text-slate-400 font-mono mt-0.5">Booking Ref: <span class="text-sky-400 font-bold" id="detailRefCode">CDGMAN-7X42Q</span> &bull; Boeing 787-9 Dreamliner</p>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">Booking Ref: <span class="text-sky-400 font-bold" id="detailRefCode">CDGMAN-7X42Q</span> &bull; Airbus A350-900</p>
                     </div>
                 </div>
 
@@ -256,30 +256,30 @@
                     <div class="flex items-center space-x-2 text-slate-300">
                         <i class="fa-solid fa-user-check text-sky-400"></i>
                         <span class="text-slate-400">Passenger:</span>
-                        <span class="font-semibold text-white">Henry Simon</span>
+                        <span class="font-semibold text-white">Derrick Henry</span>
                     </div>
                     <div class="h-4 w-px bg-slate-800"></div>
                     <div class="text-slate-400 font-mono">
-                        Date: <span class="text-slate-200">Oct 24, 2026</span>
+                        Date: <span class="text-slate-200">Oct 8, 2026</span>
                     </div>
                 </div>
             </div>
 
             <!-- Route Banner Cards -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                <!-- Departure Airport: Paris CDG -->
+                <!-- Departure Airport: New York JFK -->
                 <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="text-xs font-mono text-sky-400 uppercase tracking-wider">Departure (CEST / UTC+2)</span>
-                            <h2 class="text-2xl font-black text-white">Paris Charles de Gaulle</h2>
-                            <p class="text-xs text-slate-400">CDG &bull; Terminal 2E, Gate K34</p>
+                            <span class="text-xs font-mono text-sky-400 uppercase tracking-wider">Departure (EDT / UTC-4)</span>
+                            <h2 class="text-2xl font-black text-white">New York John F. Kennedy</h2>
+                            <p class="text-xs text-slate-400">JFK &bull; Terminal 4, Gate B22</p>
                         </div>
-                        <span class="text-3xl font-black text-slate-700">CDG</span>
+                        <span class="text-3xl font-black text-slate-700">JFK</span>
                     </div>
                     <div class="flex items-baseline space-x-3 mt-4">
-                        <span class="text-3xl font-extrabold text-white font-mono">14:20</span>
-                        <span class="text-xs text-slate-400 font-mono">CEST &bull; Oct 24, 2026</span>
+                        <span class="text-3xl font-extrabold text-white font-mono">18:45</span>
+                        <span class="text-xs text-slate-400 font-mono">EDT &bull; Oct 8, 2026</span>
                     </div>
                     <p class="text-xs text-emerald-400 mt-2 flex items-center space-x-1">
                         <i class="fa-solid fa-circle-check"></i>
@@ -290,33 +290,33 @@
                 <!-- Flight Duration / Progress Middle Summary -->
                 <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl space-y-2">
                     <span class="text-xs text-slate-400 font-mono">Flight Duration</span>
-                    <span class="text-lg font-bold text-sky-400 font-mono">7h 45m</span>
+                    <span class="text-lg font-bold text-sky-400 font-mono">8h 45m</span>
                     <div class="w-full flex items-center justify-center space-x-2 text-slate-500">
                         <div class="h-0.5 flex-1 bg-slate-800"></div>
                         <i class="fa-solid fa-plane text-sky-400 transform rotate-90 text-sm"></i>
                         <div class="h-0.5 flex-1 bg-slate-800"></div>
                     </div>
-                    <span class="text-[11px] text-slate-400 font-mono">5,530 km / 3,435 mi</span>
+                    <span class="text-[11px] text-slate-400 font-mono">7,400 km / 4,600 mi</span>
                     <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">6h Time Zone Shift</span>
                 </div>
 
-                <!-- Destination Airport: Boston BOS -->
+                <!-- Destination Airport: Malta MLA -->
                 <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">Destination (EDT / UTC-4)</span>
-                            <h2 class="text-2xl font-black text-white">Boston Logan International</h2>
-                            <p class="text-xs text-slate-400">BOS &bull; Massachusetts, USA &bull; Terminal E, Gate E8</p>
+                            <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">Destination (CEST / UTC+2)</span>
+                            <h2 class="text-2xl font-black text-white">Malta International</h2>
+                            <p class="text-xs text-slate-400">MLA &bull; Luqa, Malta &bull; Main Terminal, Gate 5</p>
                         </div>
-                        <span class="text-3xl font-black text-slate-700">BOS</span>
+                        <span class="text-3xl font-black text-slate-700">MLA</span>
                     </div>
                     <div class="flex items-baseline space-x-3 mt-4">
-                        <span class="text-3xl font-extrabold text-white font-mono">16:05</span>
-                        <span class="text-xs text-slate-400 font-mono">EDT &bull; Oct 24, 2026</span>
+                        <span class="text-3xl font-extrabold text-white font-mono">09:30</span>
+                        <span class="text-xs text-slate-400 font-mono">CEST &bull; Oct 9, 2026 (+1 day)</span>
                     </div>
                     <p class="text-xs text-sky-400 mt-2 flex items-center space-x-1">
                         <i class="fa-solid fa-clock"></i>
-                        <span>Estimated Local Arrival Time</span>
+                        <span>Scheduled Local Arrival Time</span>
                     </p>
                 </div>
             </div>
@@ -327,7 +327,7 @@
                     <div class="flex items-center justify-between mb-3 px-1">
                         <div class="flex items-center space-x-2">
                             <i class="fa-solid fa-earth-americas text-sky-400"></i>
-                            <span class="font-bold text-slate-200 text-sm">North Atlantic Flight Arc Map</span>
+                            <span class="font-bold text-slate-200 text-sm">Transatlantic Flight Arc Map (JFK ➔ MLA)</span>
                         </div>
                         <div class="flex items-center space-x-2 text-xs text-slate-400">
                             <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span><span>Route</span></span>
@@ -345,9 +345,9 @@
                                 <i class="fa-solid fa-satellite animate-pulse"></i>
                                 <span>ADS-B LIVE TELEMETRY</span>
                             </div>
-                            <div class="text-slate-300">Lat: <span id="telemetryLat" class="font-bold text-white">51.2401</span></div>
-                            <div class="text-slate-300">Lon: <span id="telemetryLon" class="font-bold text-white">-28.4520</span></div>
-                            <div class="text-slate-300">Heading: <span class="font-bold text-white">264° WSW</span></div>
+                            <div class="text-slate-300">Lat: <span id="telemetryLat" class="font-bold text-white">41.8500</span></div>
+                            <div class="text-slate-300">Lon: <span id="telemetryLon" class="font-bold text-white">-35.1200</span></div>
+                            <div class="text-slate-300">Heading: <span class="font-bold text-white">098° ESE</span></div>
                         </div>
                     </div>
                 </div>
@@ -379,23 +379,23 @@
                         <div class="grid grid-cols-2 gap-3 pt-2">
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Cruising Altitude</span>
-                                <span id="telemetryAlt" class="text-lg font-bold text-white font-mono">36,000 ft</span>
-                                <span class="text-[10px] text-slate-500 block">FL360 &bull; Stable</span>
+                                <span id="telemetryAlt" class="text-lg font-bold text-white font-mono">38,000 ft</span>
+                                <span class="text-[10px] text-slate-500 block">FL380 &bull; Stable</span>
                             </div>
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Ground Speed</span>
-                                <span id="telemetrySpeed" class="text-lg font-bold text-white font-mono">542 mph</span>
-                                <span class="text-[10px] text-slate-500 block">872 km/h &bull; Mach 0.82</span>
+                                <span id="telemetrySpeed" class="text-lg font-bold text-white font-mono">560 mph</span>
+                                <span class="text-[10px] text-slate-500 block">901 km/h &bull; Mach 0.84</span>
                             </div>
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Distance Remaining</span>
-                                <span id="telemetryDist" class="text-lg font-bold text-white font-mono">1,305 mi</span>
-                                <span class="text-[10px] text-slate-500 block">~2,100 km left</span>
+                                <span id="telemetryDist" class="text-lg font-bold text-white font-mono">1,748 mi</span>
+                                <span class="text-[10px] text-slate-500 block">~2,812 km left</span>
                             </div>
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Time Remaining</span>
-                                <span id="telemetryTimeRem" class="text-lg font-bold text-sky-400 font-mono">2h 55m</span>
-                                <span class="text-[10px] text-slate-500 block">ETA: 16:05 EDT</span>
+                                <span id="telemetryTimeRem" class="text-lg font-bold text-sky-400 font-mono">3h 19m</span>
+                                <span class="text-[10px] text-slate-500 block">ETA: 09:30 CEST</span>
                             </div>
                         </div>
                     </div>
@@ -407,13 +407,13 @@
                                 <i class="fa-solid fa-ticket text-sky-400"></i>
                                 <span class="font-bold text-xs uppercase tracking-wider text-slate-300">Boarding Pass</span>
                             </div>
-                            <span class="text-xs font-mono text-sky-400 font-bold">ECONOMY PREMIUM</span>
+                            <span class="text-xs font-mono text-sky-400 font-bold">PREMIUM ECONOMY</span>
                         </div>
 
                         <div class="space-y-3">
                             <div>
                                 <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Passenger Name</span>
-                                <span class="text-base font-extrabold text-white font-mono">HENRY SIMON</span>
+                                <span class="text-base font-extrabold text-white font-mono">DERRICK HENRY</span>
                             </div>
 
                             <div class="grid grid-cols-4 gap-2 text-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
@@ -423,15 +423,15 @@
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Seat</span>
-                                    <span class="text-xs font-bold text-sky-400 font-mono">14A</span>
+                                    <span class="text-xs font-bold text-sky-400 font-mono">12A</span>
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Gate</span>
-                                    <span class="text-xs font-bold text-white font-mono">K34</span>
+                                    <span class="text-xs font-bold text-white font-mono">B22</span>
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Zone</span>
-                                    <span class="text-xs font-bold text-white font-mono">2</span>
+                                    <span class="text-xs font-bold text-white font-mono">1</span>
                                 </div>
                             </div>
 
@@ -487,9 +487,9 @@
                 &copy; 2026 AeroPulse Global Operations.
             </div>
             <div class="flex space-x-4">
-                <span>CDG (Paris) UTC+2</span>
+                <span>JFK (New York) UTC-4</span>
                 <span>&bull;</span>
-                <span>BOS (Massachusetts, USA) UTC-4</span>
+                <span>MLA (Malta) UTC+2</span>
             </div>
         </div>
     </footer>
@@ -501,9 +501,9 @@
         let polyline;
         let updateInterval;
 
-        // Coordinates for Paris CDG and Boston Logan BOS
-        const CDG_COORDS = [49.0097, 2.5479]; // Paris CDG
-        const BOS_COORDS = [42.3656, -71.0096]; // Boston Logan BOS (Massachusetts, USA)
+        // Coordinates for New York (JFK) and Malta (MLA)
+        const JFK_COORDS = [40.6413, -73.7781]; // New York JFK
+        const MLA_COORDS = [35.8575, 14.4775];  // Malta International MLA
 
         // Progress simulation state
         let flightProgress = 0.62; 
@@ -585,8 +585,8 @@
             for (let i = 0; i <= numPoints; i++) {
                 const t = i / numPoints;
                 let lat = start[0] + (end[0] - start[0]) * t;
-                let lon = start[1] + (end[end.length - 1] - start[1]) * t;
-                const arcOffset = Math.sin(t * Math.PI) * 8.5;
+                let lon = start[1] + (end[1] - start[1]) * t;
+                const arcOffset = Math.sin(t * Math.PI) * 6.0;
                 lat += arcOffset;
                 points.push([lat, lon]);
             }
@@ -594,7 +594,7 @@
         }
 
         function initOrUpdateMap() {
-            const routePoints = generateArcPoints(CDG_COORDS, BOS_COORDS);
+            const routePoints = generateArcPoints(JFK_COORDS, MLA_COORDS);
             const currentIndex = Math.floor(flightProgress * (routePoints.length - 1));
             const currentPos = routePoints[currentIndex];
 
@@ -602,7 +602,7 @@
                 map = L.map('map', {
                     zoomControl: true,
                     attributionControl: false
-                }).setView([48.0, -32.0], 4);
+                }).setView([40.0, -30.0], 3);
 
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                     maxZoom: 18,
@@ -616,30 +616,30 @@
                     opacity: 0.85
                 }).addTo(map);
 
-                const cdgIcon = L.divIcon({
+                const jfkIcon = L.divIcon({
                     className: 'custom-pin',
                     html: `<div class="bg-sky-500 text-white font-mono font-bold text-[10px] px-2 py-1 rounded shadow-lg flex items-center space-x-1 border border-white">
-                            <span>CDG</span>
+                            <span>JFK</span>
                            </div>`,
                     iconSize: [40, 24],
                     iconAnchor: [20, 12]
                 });
 
-                const bosIcon = L.divIcon({
+                const mlaIcon = L.divIcon({
                     className: 'custom-pin',
                     html: `<div class="bg-indigo-600 text-white font-mono font-bold text-[10px] px-2 py-1 rounded shadow-lg flex items-center space-x-1 border border-white">
-                            <span>BOS</span>
+                            <span>MLA</span>
                            </div>`,
                     iconSize: [40, 24],
                     iconAnchor: [20, 12]
                 });
 
-                L.marker(CDG_COORDS, { icon: cdgIcon }).addTo(map);
-                L.marker(BOS_COORDS, { icon: bosIcon }).addTo(map);
+                L.marker(JFK_COORDS, { icon: jfkIcon }).addTo(map);
+                L.marker(MLA_COORDS, { icon: mlaIcon }).addTo(map);
 
                 const planeSvgIcon = L.divIcon({
                     className: 'plane-icon-container',
-                    html: `<div class="text-emerald-400 text-2xl filter drop-shadow-lg transform -rotate-45">
+                    html: `<div class="text-emerald-400 text-2xl filter drop-shadow-lg transform rotate-45">
                             <i class="fa-solid fa-plane"></i>
                            </div>`,
                     iconSize: [30, 30],
@@ -658,7 +658,7 @@
 
         function startLiveTelemetrySimulation() {
             if (updateInterval) clearInterval(updateInterval);
-            const routePoints = generateArcPoints(CDG_COORDS, BOS_COORDS);
+            const routePoints = generateArcPoints(JFK_COORDS, MLA_COORDS);
 
             updateInterval = setInterval(() => {
                 flightProgress += 0.0005;
@@ -683,18 +683,18 @@
             document.getElementById('progressPercent').innerText = percent + '%';
             document.getElementById('progressBar').style.width = percent + '%';
 
-            const totalMiles = 3435;
+            const totalMiles = 4600;
             const remainingMiles = Math.round(totalMiles * (1 - flightProgress));
             document.getElementById('telemetryDist').innerText = remainingMiles.toLocaleString() + ' mi';
 
-            const totalMinutes = 465;
+            const totalMinutes = 525;
             const remainingMinutes = Math.round(totalMinutes * (1 - flightProgress));
             const rh = Math.floor(remainingMinutes / 60);
             const rm = remainingMinutes % 60;
             document.getElementById('telemetryTimeRem').innerText = `${rh}h ${rm}m`;
 
-            const randomAlt = 36000 + Math.floor(Math.random() * 120 - 60);
-            const randomSpeed = 540 + Math.floor(Math.random() * 8 - 4);
+            const randomAlt = 38000 + Math.floor(Math.random() * 120 - 60);
+            const randomSpeed = 560 + Math.floor(Math.random() * 8 - 4);
             document.getElementById('telemetryAlt').innerText = randomAlt.toLocaleString() + ' ft';
             document.getElementById('telemetrySpeed').innerText = randomSpeed + ' mph';
         }
