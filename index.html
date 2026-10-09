@@ -150,7 +150,7 @@
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-white">KM 742</h3>
-                                    <p class="text-xs text-slate-400 font-mono">Status: In Transit</p>
+                                    <p class="text-xs text-slate-400 font-mono">Status: In Transit (Rebooked)</p>
                                 </div>
                             </div>
                             <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20">En Route</span>
@@ -247,6 +247,10 @@
                                 <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
                                 <span>IN TRANSIT</span>
                             </span>
+                            <span class="inline-flex items-center space-x-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-mono px-2 py-0.5 rounded">
+                                <i class="fa-solid fa-rotate text-[9px]"></i>
+                                <span>REBOOKED</span>
+                            </span>
                         </div>
                         <p class="text-xs text-slate-400 font-mono mt-0.5">Booking Ref: <span class="text-sky-400 font-bold" id="detailRefCode">CDGMAN-7X42Q</span> &bull; Airbus A350-900</p>
                     </div>
@@ -260,7 +264,18 @@
                     </div>
                     <div class="h-4 w-px bg-slate-800"></div>
                     <div class="text-slate-400 font-mono">
-                        Date: <span class="text-slate-200">Oct 8, 2026</span>
+                        Date: <span class="text-amber-400 font-bold">Oct 9, 2026</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Missed Flight Notification Alert -->
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between text-xs text-amber-200">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>
+                    <div>
+                        <span class="font-bold text-amber-400 block">Flight Rescheduled (Missed Flight)</span>
+                        <span>Original flight on Oct 8, 2026 was missed. Travel updated to next available departure today, Oct 9, 2026 at 08:00 AM.</span>
                     </div>
                 </div>
             </div>
@@ -273,17 +288,17 @@
                         <div>
                             <span class="text-xs font-mono text-sky-400 uppercase tracking-wider">Departure (EDT / UTC-4)</span>
                             <h2 class="text-2xl font-black text-white">New York John F. Kennedy</h2>
-                            <p class="text-xs text-slate-400">JFK &bull; Terminal 4, Gate B22</p>
+                            <p class="text-xs text-slate-400">JFK &bull; Terminal 4, Gate B28</p>
                         </div>
                         <span class="text-3xl font-black text-slate-700">JFK</span>
                     </div>
                     <div class="flex items-baseline space-x-3 mt-4">
-                        <span class="text-3xl font-extrabold text-white font-mono">18:45</span>
-                        <span class="text-xs text-slate-400 font-mono">EDT &bull; Oct 8, 2026</span>
+                        <span class="text-3xl font-extrabold text-white font-mono">08:00</span>
+                        <span class="text-xs text-amber-400 font-mono font-bold">EDT &bull; Oct 9, 2026</span>
                     </div>
                     <p class="text-xs text-emerald-400 mt-2 flex items-center space-x-1">
                         <i class="fa-solid fa-circle-check"></i>
-                        <span>Departed On Time</span>
+                        <span>Departed (Rebooked Stream)</span>
                     </p>
                 </div>
 
@@ -306,13 +321,13 @@
                         <div>
                             <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">Destination (CEST / UTC+2)</span>
                             <h2 class="text-2xl font-black text-white">Malta International</h2>
-                            <p class="text-xs text-slate-400">MLA &bull; Luqa, Malta &bull; Main Terminal, Gate 5</p>
+                            <p class="text-xs text-slate-400">MLA &bull; Luqa, Malta &bull; Main Terminal, Gate 3</p>
                         </div>
                         <span class="text-3xl font-black text-slate-700">MLA</span>
                     </div>
                     <div class="flex items-baseline space-x-3 mt-4">
-                        <span class="text-3xl font-extrabold text-white font-mono">09:30</span>
-                        <span class="text-xs text-slate-400 font-mono">CEST &bull; Oct 9, 2026 (+1 day)</span>
+                        <span class="text-3xl font-extrabold text-white font-mono">22:45</span>
+                        <span class="text-xs text-slate-400 font-mono">CEST &bull; Oct 9, 2026</span>
                     </div>
                     <p class="text-xs text-sky-400 mt-2 flex items-center space-x-1">
                         <i class="fa-solid fa-clock"></i>
@@ -368,10 +383,10 @@
                         <div>
                             <div class="flex justify-between text-xs text-slate-400 font-mono mb-1.5">
                                 <span>Flight Progress</span>
-                                <span id="progressPercent" class="text-sky-400 font-bold">62%</span>
+                                <span id="progressPercent" class="text-sky-400 font-bold">12%</span>
                             </div>
                             <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/50">
-                                <div id="progressBar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 62%;"></div>
+                                <div id="progressBar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 12%;"></div>
                             </div>
                         </div>
 
@@ -379,59 +394,65 @@
                         <div class="grid grid-cols-2 gap-3 pt-2">
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Cruising Altitude</span>
-                                <span id="telemetryAlt" class="text-lg font-bold text-white font-mono">38,000 ft</span>
-                                <span class="text-[10px] text-slate-500 block">FL380 &bull; Stable</span>
+                                <span id="telemetryAlt" class="text-lg font-bold text-white font-mono">36,000 ft</span>
+                                <span class="text-[10px] text-slate-500 block">FL360 &bull; Climbing</span>
                             </div>
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Ground Speed</span>
-                                <span id="telemetrySpeed" class="text-lg font-bold text-white font-mono">560 mph</span>
-                                <span class="text-[10px] text-slate-500 block">901 km/h &bull; Mach 0.84</span>
+                                <span id="telemetrySpeed" class="text-lg font-bold text-white font-mono">545 mph</span>
+                                <span class="text-[10px] text-slate-500 block">877 km/h &bull; Mach 0.82</span>
                             </div>
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Distance Remaining</span>
-                                <span id="telemetryDist" class="text-lg font-bold text-white font-mono">1,748 mi</span>
-                                <span class="text-[10px] text-slate-500 block">~2,812 km left</span>
+                                <span id="telemetryDist" class="text-lg font-bold text-white font-mono">4,048 mi</span>
+                                <span class="text-[10px] text-slate-500 block">~6,514 km left</span>
                             </div>
                             <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
                                 <span class="text-[11px] text-slate-400 block font-medium">Time Remaining</span>
-                                <span id="telemetryTimeRem" class="text-lg font-bold text-sky-400 font-mono">3h 19m</span>
-                                <span class="text-[10px] text-slate-500 block">ETA: 09:30 CEST</span>
+                                <span id="telemetryTimeRem" class="text-lg font-bold text-sky-400 font-mono">7h 41m</span>
+                                <span class="text-[10px] text-slate-500 block">ETA: 22:45 CEST</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Digital Boarding Pass Card -->
-                    <div class="bg-gradient-to-br from-sky-950/40 via-slate-900 to-indigo-950/40 border border-sky-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-sky-950/40 via-slate-900 to-indigo-950/40 border border-amber-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
                             <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-ticket text-sky-400"></i>
+                                <i class="fa-solid fa-ticket text-amber-400"></i>
                                 <span class="font-bold text-xs uppercase tracking-wider text-slate-300">Boarding Pass</span>
                             </div>
-                            <span class="text-xs font-mono text-sky-400 font-bold">PREMIUM ECONOMY</span>
+                            <span class="text-xs font-mono text-amber-400 font-bold">REBOOKED / ECONOMY</span>
                         </div>
 
                         <div class="space-y-3">
-                            <div>
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Passenger Name</span>
-                                <span class="text-base font-extrabold text-white font-mono">DERRICK HENRY</span>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Passenger Name</span>
+                                    <span class="text-base font-extrabold text-white font-mono">DERRICK HENRY</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Date</span>
+                                    <span class="text-xs font-extrabold text-amber-400 font-mono">OCT 09, 2026</span>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-4 gap-2 text-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Flight</span>
-                                    <span class="text-xs font-bold text-white font-mono">DEMO742</span>
+                                    <span class="text-xs font-bold text-white font-mono">DEMO742-R</span>
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Seat</span>
-                                    <span class="text-xs font-bold text-sky-400 font-mono">12A</span>
+                                    <span class="text-xs font-bold text-sky-400 font-mono">18C</span>
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Gate</span>
-                                    <span class="text-xs font-bold text-white font-mono">B22</span>
+                                    <span class="text-xs font-bold text-white font-mono">B28</span>
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-400 block">Zone</span>
-                                    <span class="text-xs font-bold text-white font-mono">1</span>
+                                    <span class="text-xs font-bold text-white font-mono">3</span>
                                 </div>
                             </div>
 
@@ -456,7 +477,7 @@
                                         <div class="w-3 h-full bg-black"></div>
                                     </div>
                                 </div>
-                                <span class="text-[10px] font-mono text-slate-400 mt-1">CDGMAN-7X42Q &bull; 88392019482</span>
+                                <span class="text-[10px] font-mono text-slate-400 mt-1">CDGMAN-7X42Q-RB &bull; 88392019482</span>
                             </div>
                         </div>
                     </div>
@@ -505,8 +526,8 @@
         const JFK_COORDS = [40.6413, -73.7781]; // New York JFK
         const MLA_COORDS = [35.8575, 14.4775];  // Malta International MLA
 
-        // Progress simulation state
-        let flightProgress = 0.62; 
+        // Progress simulation state (Starts at 12% for the new morning departure)
+        let flightProgress = 0.12; 
 
         window.onload = function() {
             console.log("AeroPulse Flight Tracker Ready.");
@@ -662,7 +683,7 @@
 
             updateInterval = setInterval(() => {
                 flightProgress += 0.0005;
-                if (flightProgress > 0.95) flightProgress = 0.20;
+                if (flightProgress > 0.95) flightProgress = 0.12;
 
                 const index = Math.floor(flightProgress * (routePoints.length - 1));
                 const currentPos = routePoints[index];
@@ -693,8 +714,8 @@
             const rm = remainingMinutes % 60;
             document.getElementById('telemetryTimeRem').innerText = `${rh}h ${rm}m`;
 
-            const randomAlt = 38000 + Math.floor(Math.random() * 120 - 60);
-            const randomSpeed = 560 + Math.floor(Math.random() * 8 - 4);
+            const randomAlt = 36000 + Math.floor(Math.random() * 120 - 60);
+            const randomSpeed = 545 + Math.floor(Math.random() * 8 - 4);
             document.getElementById('telemetryAlt').innerText = randomAlt.toLocaleString() + ' ft';
             document.getElementById('telemetrySpeed').innerText = randomSpeed + ' mph';
         }
